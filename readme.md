@@ -55,7 +55,34 @@
 
 ## 옵션 2 : 로컬 개발 환경
 
-이건 다분히 개인이 선택해야 할 문제입니다. 이번 튜토리얼에선 절대 필수가 아닙니다. 
+옵션 : 이건 다분히 개인이 선택해야 할 문제입니다. 이번 튜토리얼에선 절대 필수가 아닙니다.
+
+이 세팅은 더 많은 작업을 요구하지만 우리가 에디터를 이용해 모든 튜토리얼을 끝낼 수 있게 만들어줍니다. 다음과 같이 작업하시면 됩니다.
+
+1. 최신 버전의 [노드js](https://nodejs.org/en/)가 설치되었는지 확인해주세요.
+2. [Create React App 설치 가이드](https://reactjs.org/docs/create-a-new-react-app.html#create-react-app)를 따르시고 새 프로젝트를 만드세요.
+
+```bash
+npx create-react-app my-app
+```
+3. 새 프로젝트의 `src/` 폴더 내부의 모든 파일을 지워주세요.
+
+> 알아둬야 할 것 :
+> src 폴더 전체를 지우지 마세요. 그냥 안에 있는 파일만 지우세요. 안에 있는 소스파일들은 다음 스텝에서 우리가 새로 작성할 예제로 채울 것입니다.
+
+4. `index.css`파일을 `src/` 폴더에 [이 CSS코드](https://codepen.io/gaearon/pen/oWWQNa?editors=0100)로 추가해주세요.
+5. `index.js`파일을 `src/` 폴더에 [이 JS코드](https://codepen.io/gaearon/pen/oWWQNa?editors=0010)로 추가해주세요.
+6. `src/`폴더에 `index.js` 파일의 맨 위에 이 3줄을 추가해주세요.
+
+```js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+```
+
+이제 프로젝트 폴더에서 `npm start`를 입력하고 브라우저에서 `http://localhost:3000`으로 접속하면 빈 틱택토 게임을 볼 수 있을 것입니다.
+
+문법 하이라이팅을 위해서 [이 가이드](https://babeljs.io/docs/en/editors/)를 따라하시는 것을 권장합니다.
 
 ## 도와주세요! 여기서 막혔어요!
 
@@ -102,4 +129,14 @@ return React.createElement('div', {className: 'shopping-list'},
 ```
 
 [풀버전은 여기](https://babeljs.io/repl/#?presets=react&code_lz=DwEwlgbgBAxgNgQwM5IHIILYFMC8AiJACwHsAHUsAOwHMBaOMJAFzwD4AoKKYQgRlYDKJclWpQAMoyZQAZsQBOUAN6l5ZJADpKmLAF9gAej4cuwAK5wTXbg1YBJSswTV5mQ7c7XgtgOqEETEgAguTuYFamtgDyMBZmSGFWhhYchuAQrADc7EA)에 있습니다.
+
+만일 `createElement()`에 대해 더 상세히 알고 싶으시다면, [API 레퍼런스](https://reactjs.org/docs/react-api.html#createelement)를 참조하세요. 튜토리얼에서는 함수를 직접 호출하지 않고 계속 JSX를 사용할 것입니다.
+
+JSX에는 자바스크립트의 모든 힘이 담겨있습니다. 어떤 자바스크립트 표현식이라도 JSX의 괄호 안에 넣을 수 있습니다. 각각의 리액트 엘리먼트는 우리가 저장할 수 있고 어딘가로 넘길 수 있는 자바스크립트 오브젝트입니다. 
+
+위의 `ShoppingList` 컴포넌트는 `<div />`나 `<li />` 같은 빌트인 DOM만을 렌더링하지만 우리는 커스텀 리액트 컴포넌트도 조합하고 렌더링 할 수 있습니다. 예를 들면, `<ShoppingList/>`를 적음으로써 우린 ShoppingList 전체 내용을 한번에 참조 할 수도 있습니다. 각각의 리액트 컴포넌트는 캡슐화되어 있고 독립적으로 동작할 수 있습니다. 이러한 특성은 우리가 간단한 컴포넌트로부터 복잡한 UI를 만들 수 있게 허용해줍니다.
+
+## 스타터 코드 점검하기
+
+만일 **브라우저**에서 튜토리얼을 진행 중이라면, 이 [스타터 코드](https://codepen.io/gaearon/pen/oWWQNa?editors=0010)를 새 탭에서 열어주세요. 로컬에서 진행한다면 프로젝트 폴더의 `src/index.js`파일을 열어주세요. 
 
