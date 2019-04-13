@@ -100,18 +100,18 @@ import './index.css';
 
 ```javascript
 class ShoppingList extends React.Component {
-	render() {
-		return (
-			<div className="shopping-list">
-				<h1>Shopping List for {this.props.name}</h1>
-				<ul>
-					<li>Instagram</li>
-					<li>WhatsApp</li>
-					<li>Oculus</li>
-				</ul>
-			</div>
-		)
-	}
+  render() {
+    return (
+      <div className="shopping-list">
+        <h1>Shopping List for {this.props.name}</h1>
+        <ul>
+          <li>Instagram</li>
+          <li>WhatsApp</li>
+          <li>Oculus</li>
+        </ul>
+      </div>
+      )
+  }
 }
 ```
 
@@ -160,9 +160,9 @@ Board의 `renderSquare` 메소드에서, Square에 `value`라 불리는 prop을 
 
 ```js
 class Board extends React.Component {
-	renderSquare(i) {
-		return <Square value={i} />;  
-    }
+  renderSquare(i) {
+    return <Square value={i} />;  
+  }
 }
 ```
 
@@ -170,13 +170,56 @@ Square의 `render` 메소드가 그 값을 보여줄 수 있도록 `{/* TODO */}
 
 ```js
 class Square extends React.Component {
-	render() {
-		return (
-			<button className="square">
-				{this.props.value}
-			</button>
-		)
-    }
+  render() {
+    return (
+      <button className="square">
+        {this.props.value}
+      </button>
+    )
+  }
 }
 ```
 
+이전:
+
+![before_prop.png](https://images.velog.io/post-images/jakeseo_me/0de28e20-5e40-11e9-8e03-551282fb0315/beforeprop.png)
+
+이후:
+
+![after_prop.png](https://images.velog.io/post-images/jakeseo_me/1817ed90-5e40-11e9-8e03-551282fb0315/afterprop.png)
+
+[현재까지 한 전체 코드 보기](https://codepen.io/gaearon/pen/aWWQOG?editors=0010)
+
+축하합니다! 방금 부모 Board 컴포넌트에서 자식 Square 컴포넌트로 prop을 넘기는데 성공하였습니다. prop을 넘기는 것은 리액트 앱에서 부모에서 자식으로 정보가 어떻게 흘러가는지를 설명합니다.
+
+## 상호작용하는 컴포넌트 만들기
+
+Square 컴포넌트를 클릭했을 때 그 자리에 'X'가 채워지도록 만들어봅시다. 처음으로 Square 컴포넌트의 `render` 함수에서 리턴되는 버튼 태그를 변경합시다.
+
+```js
+class Square extends React.Component {
+  render() {
+    return (
+      <button className="square" onClick={function () { alert('click'); }}>
+        {this.props.value}
+      </button>
+    )
+  }
+}
+```
+
+Square에 있는 버튼을 클릭하게되면 alert 메세지를 볼 수 있을 것입니다.
+
+> **알아두기**
+> 타이핑을 더 적게하고 [this의 헷갈리는 사용법](https://yehudakatz.com/2011/08/11/understanding-javascript-function-invocation-and-this/)을 피하기 위해서 우리는 이벤트 핸들러에 [화살표 함수](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions)를 쓸 것입니다. 
+```js
+class Square extends React.Component {
+  render() {
+    return (
+      <button className="square" onClick={() => {alert('click')}>
+        {this.props.value}
+      </button>
+    );
+  }
+}
+```
