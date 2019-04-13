@@ -136,7 +136,47 @@ JSX에는 자바스크립트의 모든 힘이 담겨있습니다. 어떤 자바�
 
 위의 `ShoppingList` 컴포넌트는 `<div />`나 `<li />` 같은 빌트인 DOM만을 렌더링하지만 우리는 커스텀 리액트 컴포넌트도 조합하고 렌더링 할 수 있습니다. 예를 들면, `<ShoppingList/>`를 적음으로써 우린 ShoppingList 전체 내용을 한번에 참조 할 수도 있습니다. 각각의 리액트 컴포넌트는 캡슐화되어 있고 독립적으로 동작할 수 있습니다. 이러한 특성은 우리가 간단한 컴포넌트로부터 복잡한 UI를 만들 수 있게 허용해줍니다.
 
-## 스타터 코드 점검하기
+## 스타터 코드 살펴보기
 
 만일 **브라우저**에서 튜토리얼을 진행 중이라면, 이 [스타터 코드](https://codepen.io/gaearon/pen/oWWQNa?editors=0010)를 새 탭에서 열어주세요. 로컬에서 진행한다면 프로젝트 폴더의 `src/index.js`파일을 열어주세요. 
+
+이 스타터 코드는 우리가 만들 게임의 기반이 되는 코드입니다. CSS 스타일링은 제공되어 있으니 우리는 리액트를 배우는 것과 틱택토 프로그래밍을 하는 것에만 집중하면 됩니다.
+
+코드를 살펴보면 우리는 3가지 리액트 컴포넌트를 발견할 수 있습니다.
+
+- Sqaure
+- Board
+- Game
+
+Square 컴포넌트는 하나의 `<button>`을 렌더링하고 Board 컴포넌트는 9개의 Square 컴포넌트를 렌더링합니다. 게임 컴포넌트는 placeholder 를 가진 Board를 렌더링합니다. 이 컴포넌트는 우리가 나중에 수정하게 될 것입니다. 현재에는 어떠한 상호작용하는 컴포넌트도 존재하지 않는 상태입니다.
+
+## Props를 통한 데이터 전달
+
+이제 본격적으로 처음 시작하기 위해, 데이터를 Board 컴포넌트에서 Square 컴포넌트로 옮겨봅시다.
+
+튜토리얼을 진행하며 코드는 복사 붙여넣기를 하기보다 손으로 직접 치는 것을 강력히 권장합니다. 손으로 치는 과정은 우리에게 머슬 메모리를 개발시키고 더 깊은 이해를 할 수 있게 도와줍니다.
+
+Board의 `renderSquare` 메소드에서, Square에 `value`라 불리는 prop을 전달하기 위해 코드를 잠시 변경해주세요.
+
+```js
+class Board extends React.Component {
+	renderSquare(i) {
+		return <Square value={i} />;  
+    }
+}
+```
+
+Square의 `render` 메소드가 그 값을 보여줄 수 있도록 `{/* TODO */}` 부분을 `{this.props.value}`로 바꿔주세요.
+
+```js
+class Square extends React.Component {
+	render() {
+		return (
+			<button className="square">
+				{this.props.value}
+			</button>
+		)
+    }
+}
+```
 
