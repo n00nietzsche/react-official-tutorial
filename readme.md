@@ -308,3 +308,55 @@ Square의 `render`메소드 내부에 있는 `onClick`핸들러에서 `this.setS
 
 # 게임 완성하기
 
+이제 우리 틱택토 게임의 기본적인 뼈대를 만들었습니다. 완전한 게임을 만들기 위해, 우리는 "X"와 "O"를 보드에 표현해야 하고 승자가 누구인지 가려내야 합니다.
+
+## State 끌어 올리기
+
+현재, 각각의 Square 컴포넌트는 Game의 state를 갖고 있습니다. 승자를 가려내기 위해서는 각 9개의 Square들의 값을 한 곳에 모아야 합니다. 
+
+우리는 Board가 각각 Square에게 Square의 상태를 물어야 한다고 생각할 수도 있습니다. 리액트에서는 이러한 접근법도 가능하지만 권장하지 않습니다. 왜냐하면 코드가 이해하기 어려워지고 버그를 만들기 쉬우며 리팩토링하기도 어려워지기 때문입니다. 최고의 접근법은 게임의 상태를 각각의 Square에서 관리하는 것이 아닌 부모 Board 컴포넌트에서 관리하는 것입니다. Board 컴포넌트는 prop을 넘김으로써 각각의 Square에게 무엇을 보여줄지 말할 수 있습니다. [우리가 각각의 Square에 번호를 넘겼던 것 처럼](https://reactjs.org/tutorial/tutorial.html#passing-data-through-props)요.
+
+**여러 자식에서 데이터를 수집하기 위해 또는 서로 통신하는 2개의 자식 컴포넌트를 갖기 위해 부모 컴포넌트에서 shared state를 선언할 필요가 있습니다. 부모 컴포넌트는 props를 사용하여 state를 자식 컴포넌트에 넘길 수 있습니다. 이것은 자식 컴포넌트와 각각 다른 컴포넌트들, 부모 컴포넌트와의 싱크를 유지시킬 것입니다.** 
+
+State를 부모 컴포넌트로 끌어 올리는 것은 리액트 컴포넌트가 리팩토링 될 때 흔히 있는 일입니다. 이번 기회를 통해 연습해봅시다.
+
+Board의 생성자를 추가하고 초기 state에 9개의 Square에 들어갈 9개의 null 배열을 넣어봅시다. 
+
+```js
+class Board extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      squares: Array(9).fill(null),  
+    };
+  }
+  
+  renderSquare(i) {
+    return <Square value={i} />;  
+  }
+}
+```
+
+나중에 Board를 채울 때, `this.state.squares` 배열은 이런 형식으로 보이게 될 것입니다.
+```js
+[
+  'O', null, 'X',
+  'X', 'X', 'O',
+  'O', null, null,
+]
+```
+
+Board의 `renderSquare` 메소드는 현재 이 상태입니다.
+
+```js
+renderSquare(i) {
+  return <Square value={i} />;  
+}
+```
+
+시작할 때, 우리는 Board에서 모든 Square에서 값을 보여주도록 prop을 아래로 전달했습니다. 다른 이전 단계에서 우리는 숫자를 Square의 자체 상태에 의해 결정되는 "X"마크로 바꾸었습니다. 그게 지금 Square가 Board에서 prop으로 전달된 `value`를 무시하는 이유입니다.
+
+우린 다시 prop 전달 매커니즘을 이용할 것입니다. 우리는 각각의 Square에게 현재 값(`'X'`, `'O'`, or `null`)에 대한 지시를 하기 위해 Board를 수정할 것입니다. 우리는 Board의 constructor에 이미 `squares` 배열을 정의했습니다. 그리고 우리는 Board의 `renderSquare` 메소드가 이것을 읽어들이게 수정할 것입니다.
+
+[전체 코드는 여기서 확인할 수 있습니다.](https://codepen.io/gaearon/pen/gWWQPY?editors=0010)
+
