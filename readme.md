@@ -282,3 +282,29 @@ class Square extends React.Component {
   }
 }
 ```
+
+Square의 `render`메소드 내부에 있는 `onClick`핸들러에서 `this.setState`를 호출함으로써, 우리는 리액트에게 `<button>`이 클릭될 때마다 Square를 재렌더링하라고 말합니다. 업데이트 이후, Square의 `this.state.value`는 `'X'`가 될 것입니다. 우리는 게임보드에서 `X`를 볼 수 있습니다. 아무 Square나 클릭하면 `X`가 나타납니다.
+
+컴포넌트에서 `setState`를 호출하면, 리액트는 자동적으로 자식 컴포넌트도 업데이트합니다.
+
+[전체 코드 보기](https://codepen.io/gaearon/pen/VbbVLg?editors=0010)
+
+## 개발자 도구
+
+[Chrome](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en)과 [Firefox](https://addons.mozilla.org/en-US/firefox/addon/react-devtools/)를 위한 리액트 개발자 도구 확장 프로그램은 우리가 리액트 컴포넌트의 트리를 검사할 수 있게 해줍니다.
+
+![ReactComponentTree.png](https://images.velog.io/post-images/jakeseo_me/50989c50-5eae-11e9-b696-9d59f07ba0b0/ReactComponentTree.png)
+
+리액트 개발자 도구는 컴포넌트가 가진 props와 state를 체크하는 것도 가능하게 합니다.
+
+리액트 개발자 도구 설치 후에, 페이지에 있는 요소를 오른쪽 클릭 후에 "검사" 기능을 실행해보세요. 가장 오른쪽 탭에 리액트 탭이 있을 것입니다.
+
+**하지만 코드펜에서 동작하게 만드려면 몇가지 추가적인 작업이 필요합니다.**
+
+1. 회원가입 후 로그인하고 이메일을 확인하세요. (이메일이 안보이면 스팸메일함도 확인해보세요.)
+2. "Fork" 버튼을 클릭하세요.
+3. "Change View"를 클릭한 후에 "Debug mode"를 선택하세요.
+4. 새로 열린 탭 속 개발자 도구에 리액트 탭이 보일 것입니다.
+
+# 게임 완성하기
+
