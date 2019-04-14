@@ -100,18 +100,18 @@ import './index.css';
 
 ```javascript
 class ShoppingList extends React.Component {
-  render() {
-    return (
-      <div className="shopping-list">
-        <h1>Shopping List for {this.props.name}</h1>
-        <ul>
-          <li>Instagram</li>
-          <li>WhatsApp</li>
-          <li>Oculus</li>
-        </ul>
-      </div>
-      )
-  }
+	render() {
+		return (
+			<div className="shopping-list">
+				<h1>Shopping List for {this.props.name}</h1>
+				<ul>
+					<li>Instagram</li>
+					<li>WhatsApp</li>
+					<li>Oculus</li>
+				</ul>
+			</div>
+		)
+	}
 }
 ```
 
@@ -160,9 +160,9 @@ Board의 `renderSquare` 메소드에서, Square에 `value`라 불리는 prop을 
 
 ```js
 class Board extends React.Component {
-  renderSquare(i) {
-    return <Square value={i} />;  
-  }
+	renderSquare(i) {
+		return <Square value={i} />;  
+    }
 }
 ```
 
@@ -170,13 +170,13 @@ Square의 `render` 메소드가 그 값을 보여줄 수 있도록 `{/* TODO */}
 
 ```js
 class Square extends React.Component {
-  render() {
-    return (
-      <button className="square">
-        {this.props.value}
-      </button>
-    )
-  }
+	render() {
+		return (
+			<button className="square">
+				{this.props.value}
+			</button>
+		)
+	}
 }
 ```
 
@@ -198,13 +198,13 @@ Square 컴포넌트를 클릭했을 때 그 자리에 'X'가 채워지도록 만
 
 ```js
 class Square extends React.Component {
-  render() {
-    return (
-      <button className="square" onClick={function () { alert('click'); }}>
-        {this.props.value}
-      </button>
-    )
-  }
+	render() {
+		return (
+			<button className="square" onClick={function () { alert('click'); }}>
+				{this.props.value}
+			</button>
+		)
+    }
 }
 ```
 
@@ -223,3 +223,38 @@ class Square extends React.Component {
   }
 }
 ```
+> `onClick={() => alert('click')}`가 어떻게 쓰였는지 알아봅시다. `onClick`의 prop으로 우리는 함수를 넘겨주었습니다. 리액트는 클릭이 발생한 후에 이 함수를 실행할 것입니다. `() =>`을 적는 걸 까먹고 `onClick={alert('click')}` 만 적지 않도록 조심하세요. 흔히들 하는 실수입니다. 그리고 매번 컴포넌트가 재렌더링 될 때마다 alert가 일어날 것입니다.
+
+다음 단계로 우리는 Square 컴포넌트가 클릭됐을 때, 클릭됐던 것을 기억하게 만들고 "X"마크를 채우고 싶습니다. 무언가를 기억하기 위해 컴포넌트는 **상태(state)** 라는 것을 사용합니다.
+
+리액트 컴포넌트는 생성자에 `this.state`를 세팅함으로써 상태를 가질 수 있습니다. `this.state`는 정의된 리액트 컴포넌트 내부의 private 하게 적용된다고 생각하시면 됩니다. Square의 현재 값을 `this.state`에 저장해봅시다. 그리고 Square가 클릭됐을 때 그것을 변경해봅시다.
+
+먼저, 클래스에 상태를 초기화하는 생성자를 만들 것입니다.
+
+```js
+class Square extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: null,  
+    };
+  }
+  
+  render() {
+    return (
+      <button className="square" onClick={() => alert('click')}>
+        {this.props.value}
+      </button>
+    );
+  }
+}
+```
+
+> **알아두기** 
+자바스크립트 클래스에서 하위 클래스의 생성자를 정의할 때는 항상 `super`를 호출해야 합니다. 생성자를 가진 모든 리액트 컴포넌트 클래스들은 `super(props)`를 호출하면서 시작해야 합니다.
+
+이제 우리는 클릭됐을 때, 현재 상태의 값을 나타내주기 위해 Square의 `render` 메소드를 수정할 것입니다.
+- `<button>`태그 안에 있는 `this.props.value`를 `this.state.value`로 바꿔주세요.
+- `onClick={...}` 이벤트 핸들러를 `onClick={() => this.setState({value: 'X'})}`로 바꿔주세요.
+- `className`과 `onClick`을 각각 다른 줄에 표기하는 것이 가독성이 좋습니다.
+
