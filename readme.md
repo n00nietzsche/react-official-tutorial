@@ -254,7 +254,31 @@ class Square extends React.Component {
 자바스크립트 클래스에서 하위 클래스의 생성자를 정의할 때는 항상 `super`를 호출해야 합니다. 생성자를 가진 모든 리액트 컴포넌트 클래스들은 `super(props)`를 호출하면서 시작해야 합니다.
 
 이제 우리는 클릭됐을 때, 현재 상태의 값을 나타내주기 위해 Square의 `render` 메소드를 수정할 것입니다.
+
 - `<button>`태그 안에 있는 `this.props.value`를 `this.state.value`로 바꿔주세요.
 - `onClick={...}` 이벤트 핸들러를 `onClick={() => this.setState({value: 'X'})}`로 바꿔주세요.
 - `className`과 `onClick`을 각각 다른 줄에 표기하는 것이 가독성이 좋습니다.
 
+모든 변경이 끝난 후에, Square의 `render` 메소드에 의해 반환되는 `<button>`태그는 다음과 같이 작성됩니다.
+
+```js
+class Square extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: null,  
+    };
+  }
+  
+  render() {
+    return (
+      <button
+        className="square"
+        onClick={() => this.setState({value: 'X'})}
+      >
+        {this.state.value}
+      </button>
+    );
+  }
+}
+```
