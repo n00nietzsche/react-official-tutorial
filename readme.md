@@ -417,3 +417,5 @@ Square가 클릭됐을 때, Board에 의해 제공된 `onClick` 함수가 호출
 4. Board가 `onClick={() => this.handleClick()}`를 Square로 넘깁니다. Square가 클릭됐을 때, `this.handleClick(i)`를 호출합니다.
 5. 우리는 아직 `handleClick()` 메소드를 정의하지 않았습니다. 그래서 우리의 코드는 동작하지 않고 망가질 것(crash)입니다. 지금 square를 클릭하면, 우리는 "this.handleClick is not a function"과 같은 빨간 에러 화면을 볼 수 있을 것입니다.
 
+> **알아둬야 할 것**
+> 리액트에서 DOM `<button>` 원소의 `onClick` 속성은 특별한 의미를 갖습니다. 이것은 빌트인(built-in) 컴포넌트이기 때문입니다. Square 같은 커스텀 컴포넌트의 경우, 이름은 우리 마음대로 짓습니다. 우리는 Square의 `onClick` prop이나 Board의 `handleClick` 메소드에 아무런 이름이나 줄 수 있습니다. 그래도 코드는 똑같이 동작할 것입니다. 리액트에서는, 이벤트를 나타내는 props는 `on[Event]`와 같은 형식으로 이름을 짓는 것이 규칙입니다. 그리고 그 이벤트를 다루기 위한 메소드는 `handle[Event]` 처럼 이름을 짓습니다.
