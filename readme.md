@@ -358,5 +358,62 @@ renderSquare(i) {
 
 우린 다시 prop 전달 매커니즘을 이용할 것입니다. 우리는 각각의 Square에게 현재 값(`'X'`, `'O'`, or `null`)에 대한 지시를 하기 위해 Board를 수정할 것입니다. 우리는 Board의 constructor에 이미 `squares` 배열을 정의했습니다. 그리고 우리는 Board의 `renderSquare` 메소드가 이것을 읽어들이게 수정할 것입니다.
 
+```js
+renderSquare(i) {
+  return <Sqare value={this.state.squares[i]} />;
+}
+```
+
 [전체 코드는 여기서 확인할 수 있습니다.](https://codepen.io/gaearon/pen/gWWQPY?editors=0010)
+
+각각의 Square는 `'X'`, `'O'` 또는 `null`의 `value` prop을 받게 될 것입니다.
+
+다음으로, 우리는 Square가 클릭됐을 때 일어나는 일을 변경해주어야 할 필요가 있습니다. Board 컴포넌트는 현재 어떤 Square 컴포넌트가 차있는지에 대한 정보를 갖고 있습니다. Square가 Border의 state를 업데이트 할 수 있도록 하는 방법을 만들 필요가 있습니다. state는 이것을 정의하는 컴포넌트에 private하게 여겨지기 때문에 우리는 Square에서 Board의 state를 바로 업데이트 할 수 없습니다.
+
+대신, 우리는 Board에서 Square로 함수를 넘길 것입니다. 우리는 Square가 클릭됐을 때, Sqaure가 그 함수를 호출하도록 할 것입니다. 우리는 Board안의 `renderSquare` 메소드를 다음과 같이 수정할 것입니다.
+
+```js
+renderSquare(i) {
+  return (
+    <Square
+      value={this.state.squares[i]}
+      onClick={() => this.handleClick(i)}
+    />
+  );
+}
+```
+
+> **알아둘 것**
+> 우리는 우리는 반환된 원소를 가독성을 위해 여러 줄로 나누었습니다. 그리고 괄호를 추가하여 자바스크립트에서 `return`과 줄이 바뀌는 곳 뒤에 세미콜론을 추가할 필요가 없게 만들었습니다.
+
+지금 우리는 2개의 props를 Board에서 Square로 보낼 것입니다. `value`와 `onClick`을 보낼 것입니다. `onClick` prop은 Square가 클릭됐을 때 불러오는 함수입니다. 우리는 Square를 다음과 같이 변경할 것입니다.
+
+- Square의 `render` 메소드 속의 `this.state.value`를 `this.props.value`로 
+- Square의 `render` 메소드 속의 `this.setState()`를 `this.props.onClick()`로 
+- Square의 `constructor`를 지울 것입니다. 왜냐하면 Square는 더이상 Game의 상태를 따라갈 필요가 없으니까요.
+
+이러한 변화 후에는 Square의 코드는 다음과 같을 것입니다.
+
+```js
+class Square extends React.Component {
+  render() {
+    return (
+      <button 
+        className="square" 
+        onClick={() => {this.props.onClick()}}
+      >
+        {this.props.value}
+      </button>
+    );
+  }
+}
+```
+
+Square가 클릭됐을 때, Board에 의해 제공된 `onClick` 함수가 호출됩니다. 여태까지 어떻게 만들었는지 하나하나 짚어봅시다.
+
+1. 내부(built-in) DOM `<button>` 컴포넌트의 `onClick` prop이 React에게 클릭 이벤트 리스너를 준비하라고 알립니다.
+2. 버튼이 클릭됐을 때, 리액트가 Square의 `render()` 메소드에 정의된 `onClick` 이벤트 핸들러를 호출할 것입니다.
+3. 이 이벤트 핸들러는 `this.props.onClick()`을 호출합니다. Square의 `onClick` prop은 Board에 의해 구체화됩니다. 
+4. Board가 `onClick={() => this.handleClick()}`를 Square로 넘깁니다. Square가 클릭됐을 때, `this.handleClick(i)`를 호출합니다.
+5. 우리는 아직 `handleClick()` 메소드를 정의하지 않았습니다. 그래서 우리의 코드는 동작하지 않고 망가질 것(crash)입니다. 지금 square를 클릭하면, 우리는 "this.handleClick is not a function"과 같은 빨간 에러 화면을 볼 수 있을 것입니다.
 
