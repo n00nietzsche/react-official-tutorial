@@ -419,3 +419,59 @@ Square가 클릭됐을 때, Board에 의해 제공된 `onClick` 함수가 호출
 
 > **알아둬야 할 것**
 > 리액트에서 DOM `<button>` 원소의 `onClick` 속성은 특별한 의미를 갖습니다. 이것은 빌트인(built-in) 컴포넌트이기 때문입니다. Square 같은 커스텀 컴포넌트의 경우, 이름은 우리 마음대로 짓습니다. 우리는 Square의 `onClick` prop이나 Board의 `handleClick` 메소드에 아무런 이름이나 줄 수 있습니다. 그래도 코드는 똑같이 동작할 것입니다. 리액트에서는, 이벤트를 나타내는 props는 `on[Event]`와 같은 형식으로 이름을 짓는 것이 규칙입니다. 그리고 그 이벤트를 다루기 위한 메소드는 `handle[Event]` 처럼 이름을 짓습니다.
+
+우리가 Square를 클릭할 때, 우리는 `handleClick`을 아직 정의하지 않았기 때문에 빨간색 에러 메시지를 보게 될 것입니다. 우리는 `handleClick`을 Board 클래스에 추가할 것입니다.
+
+```js
+class Board extends React.Component {
+  constructor (props) {
+    super(props);
+    this.state = {
+      squares: Array(9).fill(null),  
+    }
+  }
+  
+  handleClick(i) {
+    const squares = this.state.squares.slice();
+    squares[i] = 'X';
+    this.setState({squares: squares});
+  }
+  
+  renderSquare(i) {
+    return (
+      <Square
+        value={this.state.squares[i]}
+        onClick={()=>this.handleClick(i)}
+      />
+    );
+  }
+  
+  render() {
+    const status = 'Next player: X';
+    
+    return (
+      <div>
+        <div className="status">{status}</div>
+        <div className="board-row">
+          {this.renderSquare(0)}
+          {this.renderSquare(1)}
+          {this.renderSquare(2)}
+        </div>
+        <div className="board-row">
+          {this.renderSquare(3)}
+          {this.renderSquare(4)}
+          {this.renderSquare(5)}
+        </div>
+        <div className="board-row">
+          {this.renderSquare(6)}
+          {this.renderSquare(7)}
+          {this.renderSquare(8)}
+        </div>
+      </div>
+    );
+  }
+}
+```
+
+[여태까지의 모든 코드 보기](https://codepen.io/gaearon/pen/ybbQJX?editors=0010)
+
