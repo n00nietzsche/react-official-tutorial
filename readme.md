@@ -432,7 +432,7 @@ class Board extends React.Component {
   }
   
   handleClick(i) {
-    const squares = this.state.squares.slice();
+    const squares = this.state.squares.slice(); // 배열을 복사해서 쓰기 위해...
     squares[i] = 'X';
     this.setState({squares: squares});
   }
@@ -474,4 +474,12 @@ class Board extends React.Component {
 ```
 
 [여태까지의 모든 코드 보기](https://codepen.io/gaearon/pen/ybbQJX?editors=0010)
+
+이렇게 코드를 변경한 뒤에, 이전과 같이 Square를 클릭해서 Square의 내용을 채울 수 있습니다. 하지만, 이제 상태는 개개의 Square 컴포넌트가 아닌 Board 컴포넌트에 저장됩니다. Board의 상태가 변화될 때마다, Square 컴포넌트는 자동으로 재렌더링됩니다. Board 컴포넌트에 모든 Square의 상태를 저장하는 것은 나중에 Board 컴포넌트가 승자를 결정하게 해줍니다.
+
+Square 컴포넌트가 더이상 상태를 저장하지 않기 때문에, Square 컴포넌트는 Board 컴포넌트로부터 값을 받고 클릭됐을 때, Board 컴포넌트에게 알리는 역할만 합니다. 리액트 용어로는 Square 컴포넌트는 현재 **제어된 컴포넌트(Controlled Components)** 입니다. Board는 그들을 모두 제어할 권한을 가집니다.
+
+알아둬야 할 것은 `handleClick`에서 우리는 `squares` 배열의 복사본을 만들기 위해 `.slice()`를 호출했습니다. 이것은 현재 존재하는 array 대신 복사본 array를 수정하기 위함입니다. 왜 이렇게 구현하는지는 다음 섹션에서 설명하겠습니다.
+
+## 불변성은 왜 중요한가
 
