@@ -709,3 +709,5 @@ handleClick(i) {
 [지금까지 작성한 모든 코드 보기](https://codepen.io/gaearon/pen/LyyXgK?editors=0010)
 
 축하합니다! 이제 틱택토 게임을 만드는데 성공했습니다. 그리고 지금 막 React의 기본을 배웠습니다. 진짜 승자는 당신입니다!
+
+# 시간여행 추가하기
