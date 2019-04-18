@@ -711,3 +711,203 @@ handleClick(i) {
 축하합니다! 이제 틱택토 게임을 만드는데 성공했습니다. 그리고 지금 막 React의 기본을 배웠습니다. 진짜 승자는 당신입니다!
 
 # 시간여행 추가하기
+
+마지막 과제로, "과거로 돌아가는 것"이 가능하도록 만들어봅시다. 게임에서 이전 움직임으로 돌아가는 것입니다.
+
+## 움직임 History 저장하기
+
+우리가 만일 `squares` 배열을 변경한다면, 시간여행을 구현하기는 매우 어려울 것입니다.
+
+하지만, 우리는 매번 이동 후에 `squares` 배열의 새로운 복사본을 만들기 위해서 `slice()` 함수를 이용하였습니다. 그리고 그것을 불변하도록 다뤘습니다. 이것은 우리에게 `squares` 배열의 모든 지난 버전을 저장할 수 있도록 해주었습니다. 그리고 이미 진행된 차례들 사이로 돌아다닐 수 있도록 해줍니다.
+
+우린 지난 `squares` 배열을 `history`라 불리는 배열에 저장할 것입니다. `history` 배열은 처음부터 끝까지 모든 board 컴포넌트의 상태를 보여줍니다. 그리고 다음과 같은 형태를 지닙니다.
+
+```js
+history = [
+  // Before first move
+  {
+    squares: [
+      null, null, null,
+      null, null, null,
+      null, null, null,
+    ]
+  },
+  // After first move
+  {
+    squares: [
+      null, null, null,
+      null, 'X', null,
+      null, null, null,
+    ]
+  },
+  // After second move
+  {
+    squares: [
+      null, null, null,
+      null, 'X', null,
+      null, null, 'O',
+    ]
+  },
+  // ...
+]
+```
+
+이제 우리는 어떤 컴포넌트가 `history` 상태를 가질지 결정해야 합니다.
+
+## 다시 한번, 상태 끌어올리기
+
+우리는 가장 상위레벨 컴포넌트인 Game 컴포넌트가 이전 움직임들을 보여주길 원합니다. 이렇게 하기 위해서는 `history`에 접근이 필요합니다. 그래서 우리는 `history` 상태를 가장 상위 레벨 게임 컴포넌트에 위치시킬 것입니다.
+
+`history` 상태를 게임 컴포넌트에 위치시키려면 자식 컴포넌트인 Board 컴포넌트에서 squares 상태를 지우는게 좋습니다. 위에서 했던 Square 컴포넌트에서 Board 컴포넌트로의 ["상태 끌어올리기"](https://reactjs.org/tutorial/tutorial.html#lifting-state-up)처럼 우리는 Board 컴포넌트에 있는 상태를 가장 상위 Game 컴포넌트로 올릴 것입니다. 그렇게 되면 Game 컴포넌트는 Board 컴포넌트의 데이터에 대한 모든 것을 제어할 수 있습니다. 그리고 Board 컴포넌트에게 history에서 이전 차례들을 렌더링하라고 지시해봅시다.
+
+처음으로 우리가 할 일은 Game 컴포넌트 생성자에 초기 상태를 셋팅하는 것입니다.
+
+```js
+class Game extends React.Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      history : [{
+        squares: Array(9).fill(null)
+      }],
+      xIsNext: true,
+    }
+  }
+
+  render() {
+    return (
+      <div className="game">
+        <div className="game-board">
+          <Board />
+        </div>
+        <div className="game-info">
+          <div>{/* status */}</div>
+          <ol>{/* TODO */}</ol>
+        </div>
+      </div>
+    );
+  }
+}
+```
+
+우리는 `squares`를 받는 Board 컴포넌트를 작성할 것이고 `onClick` props를 Game 컴포넌트로부터 받을 것입니다. 지금 우리는 많은 Squares 컴포넌트를 위해 Board 내부에 단 하나의 핸들러만 갖고 있습니다. 어떤 Square가 클릭됐는지 표시하기 위해 우리는 각각 Square의 위치를 `onClick` 핸들러로 넘겨야 합니다. Board 컴포넌트는 다음과 같이 변경하면 됩니다.
+
+- Board 컴포넌트 내부 `constructor`는 삭제하세요.
+- Board 컴포넌트의 `renderSquare` 내부의 `this.state.squares[i]`를 `this.props.squares[i]`로 교체하세요.
+- Board 컴포넌트의 `renderSquare` 내부의 `this.handleClick(i)`을 `this.props.onClick(i)`로 교체하세요.
+
+Board 컴포넌트의 코드는 다음과 같이 변했을 것입니다.
+```js
+class Board extends React.Component {
+
+  handleClick(i) {
+    const squares = this.props.squares.slice();
+
+    if(calculateWinner(squares) || squares[i])
+      return;
+
+    squares[i] = this.props.xIsNext ? 'X' : 'O';
+    this.setState({
+        squares: this.props.squares,
+        xIsNext: !this.props.xIsNext,
+      });
+  }
+
+  renderSquare(i) {
+    return <Square 
+              value={this.props.squares[i]}
+              onClick={()=>this.props.onClick(i)}
+            />;
+  }
+
+  render() {
+    const winner = calculateWinner(this.state.squares);
+    let status;
+
+    if(winner) 
+      status = 'Winner: ' + winner;
+    else
+      status = `Next player: ${this.state.xIsNext ? 'X' : 'O'}`
+
+    return (
+      <div>
+        <div className="status">{status}</div>
+        <div className="board-row">
+          {this.renderSquare(0)}
+          {this.renderSquare(1)}
+          {this.renderSquare(2)}
+        </div>
+        <div className="board-row">
+          {this.renderSquare(3)}
+          {this.renderSquare(4)}
+          {this.renderSquare(5)}
+        </div>
+        <div className="board-row">
+          {this.renderSquare(6)}
+          {this.renderSquare(7)}
+          {this.renderSquare(8)}
+        </div>
+      </div>
+    );
+  }
+}
+```
+
+이제 우리는 게임의 상태를 결정하고 보여주는 가장 최근 히스토리 엔트리를 사용하기 위한 Game 컴포넌트의 `render` 함수를 업데이트 할 것입니다.
+
+```js
+render() {
+  const history = this.state.history;
+  const current = history[history.length - 1];
+  const winner = calculateWinner(current.squares);
+
+  let status;
+
+  if(winner) 
+    status = 'Winner: ' + winner;
+  else
+    status = `Next player: ${this.state.xIsNext ? 'X' : 'O'}`
+
+
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board 
+          squares={current.squares}
+          onClick={(i) => this.handleClick(i)}
+        />
+      </div>
+      <div className="game-info">
+        <div>{status}</div>
+        <ol>{/* TODO */}</ol>
+      </div>
+    </div>
+  );
+}
+```
+
+Game 컴포넌트는 이제 game의 상태를 렌더링합니다. 우리는 이제 Board의 `render` 메소드에서 대응하는 부분의 코드를 삭제해야 합니다. 리팩토링 이후, Board의 `render` 메소드는 다음과 같습니다.
+
+```js
+render() {
+  return (
+    <div>
+      <div className="board-row">
+        {this.renderSquare(0)}
+        {this.renderSquare(1)}
+        {this.renderSquare(2)}
+      </div>
+      <div className="board-row">
+        {this.renderSquare(3)}
+        {this.renderSquare(4)}
+        {this.renderSquare(5)}
+      </div>
+      <div className="board-row">
+        {this.renderSquare(6)}
+        {this.renderSquare(7)}
+        {this.renderSquare(8)}
+      </div>
+    </div>
+  );
+}
+```
