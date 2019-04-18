@@ -553,4 +553,159 @@ function Square(props) {
 
 ## 각자의 턴 갖기
 
-이제 틱택토 게임에서 확실한 결점을 고칠 차례입니다.
+이제 틱택토 게임에서 확실한 결점을 고칠 차례입니다. 보드에 "O"가 마킹되지 않는 것입니다.
+
+우리는 처음 움직임의 기본값을 "X"로 설정할 것입니다. Board 생성자의 초기 상태를 수정함으로써 우리는 기본 값을 설정할 수 있습니다.
+
+```js
+class Board extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      squares: Array(9).fill(null),
+      xIsNext: true,
+    };
+  }
+```
+
+매번 플레이어가 움직일 때마다, `xIsNext`는 어떤 플레이어가 다음인지를 판단하기 위해 뒤집(flipped)힐 것입니다. 그리고 게임의 상태는 저장될 것입니다. 우리는 `xIsNext`의 값을 뒤집기 위해 Board 컴포넌트의 `handleClick` 함수를 업데이트 할 것입니다.
+
+```js
+handleClick(i) {
+  const squares = this.state.squares.slice();
+  squares[i] = this.state.xIsNext ? 'X' : 'O';
+  this.setState({
+      squares: squares,
+      xIsNext: !this.state.xIsNext,
+    });
+}
+```
+
+이렇게 바꾸면 "X"와 "O"가 차례로 턴을 갖습니다. 직접 클릭 해보세요.
+
+어느 플레이어가 다음 턴인지 보여주기 위해 Board 컴포넌트의 `render`에서 "status" 텍스트를 바꿔봅시다.
+
+```js
+render() {
+  const status = `Next player: ${this.state.xIsNext ? 'X' : 'O'}`; 
+  //나머진 그대로...
+}
+```
+
+변경사항을 적용한 후에는 Board 컴포넌트는 이러한 모양일 것입니다.
+
+```js
+class Board extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      squares: Array(9).fill(null),
+      xIsNext: true,
+    };
+  }
+
+  handleClick(i) {
+    const squares = this.state.squares.slice();
+    squares[i] = this.state.xIsNext ? 'X' : 'O';
+    this.setState({
+        squares: squares,
+        xIsNext: !this.state.xIsNext,
+      });
+  }
+
+  renderSquare(i) {
+    return <Square 
+              value={this.state.squares[i]}
+              onClick={()=>this.handleClick(i)}
+            />;
+  }
+
+  render() {
+    const status = `Next player: ${this.state.xIsNext ? 'X' : 'O'}`;
+
+    return (
+      <div>
+        <div className="status">{status}</div>
+        <div className="board-row">
+          {this.renderSquare(0)}
+          {this.renderSquare(1)}
+          {this.renderSquare(2)}
+        </div>
+        <div className="board-row">
+          {this.renderSquare(3)}
+          {this.renderSquare(4)}
+          {this.renderSquare(5)}
+        </div>
+        <div className="board-row">
+          {this.renderSquare(6)}
+          {this.renderSquare(7)}
+          {this.renderSquare(8)}
+        </div>
+      </div>
+    );
+  }
+}
+```
+
+[여기까지의 모든 코드 보기](https://codepen.io/gaearon/pen/KmmrBy?editors=0010)
+
+## 승자 결정하기
+
+이제 우리는 다음에는 어떤 플레이어의 턴인지 보여줄 것입니다. 한쪽이 게임에서 승리하면 승리한 것을 보여주고 더이상 턴이 진행되지 않도록 할 것입니다. 파일의 끝에 아래의 도우미 함수를 복사하고 붙여넣으세요. 
+
+```js
+function calculateWinner(squares) {
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return squares[a];
+    }
+  }
+  return null;
+}
+```
+
+9개의 Squares 컴포넌트가 주어졌을 때, 이 함수는 승자를 체크하고 `'X'`, `'O'`, `'null'`을 적절하게 반환할 것입니다.
+
+우리는 Board의 `render`함수에서 한 플레이어가 승리하였는지 체크하기 위해 `calculateWinner(squares)`를 호출할 것입니다. 만일 한 플레이어가 이겼다면, 우리는 "Winner: X" 또는 "Winner : O"와 같은 텍스트를 보여줄 수 있을 것입니다. Board의 `render`함수에서 `status` 선언을 다음과 같이 바꿀 것입니다.
+
+```js
+const winner = calculateWinner(this.state.squares);
+let status;
+
+if(winner) 
+  status = 'Winner: ' + winner;
+else
+  status = `Next player: ${this.state.xIsNext ? 'X' : 'O'}`
+```
+
+우리는 이제 Board 컴포넌트의 `handleClick` 함수를 변경할 수 있습니다. 만일 누군가가 게임을 승리하거나 모든 Square가 가득 찼을 때, 리턴을 더 빨리 함으로써, 클릭을 무시할 수 있습니다.
+
+```js
+handleClick(i) {
+  const squares = this.state.squares.slice();
+
+  if(calculateWinner(squares) || squares[i])
+    return;
+
+  squares[i] = this.state.xIsNext ? 'X' : 'O';
+  this.setState({
+    squares: squares,
+    xIsNext: !this.state.xIsNext,
+  });
+}
+```
+
+[지금까지 작성한 모든 코드 보기](https://codepen.io/gaearon/pen/LyyXgK?editors=0010)
+
+축하합니다! 이제 틱택토 게임을 만드는데 성공했습니다. 그리고 지금 막 React의 기본을 배웠습니다. 진짜 승자는 당신입니다!
