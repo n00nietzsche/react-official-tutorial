@@ -955,5 +955,59 @@ const doubled = numbers.map(x => x * 2); // [2, 4, 6]
 
 `map` 메소드를 이용하여, 우리는 스크린에 버튼을 보여주면서 움직임의 히스토리를 리액트 원소로 맵핑할 수 있습니다. 그리고 이전 움직임으로 점프하기 위한 버튼들의 리스트를 보여줄 수 있습니다.
 
-그럼 Game의 `render`메소드에서 `history`를 `map` 해봅시다.
+그럼 Game의 `render`메소드에서 `history`를 `map` 해봅시다. 
 
+```js
+render() {
+  const history = this.state.history;
+  const current = history[history.length - 1];
+  const winner = calculateWinner(current.squares);
+  
+  const moves = history.map((step, move) => {
+    const desc = move ?
+      'Go to move #' + move :
+      'Go to game start';
+    return  (
+      <li>
+        <button
+          onClick={() => this.jumpTo(move)}>
+          {desc}
+        </button>
+      </li>
+    );
+  });
+
+  let status;
+
+  if(winner) 
+    status = 'Winner: ' + winner;
+  else
+    status = `Next player: ${this.state.xIsNext ? 'X' : 'O'}`
+
+
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board 
+          squares={current.squares}
+          onClick={(i) => this.handleClick(i)}
+        />
+      </div>
+      <div className="game-info">
+        <div>{status}</div>
+        <ol>{moves}</ol>
+      </div>
+    </div>
+  );
+}
+```
+
+[여기까지의 전체 코드는 여기에서](https://codepen.io/gaearon/pen/EmmGEa?editors=0010)
+
+틱택토 게임의 히스토리에서 각 움직임을 위해 우리는 `<button>`을 포함한 리스트 아이템 `<li>` 를 이용합니다. 버튼은 `this.jumpTo()` 메소드를 호출하는 `onClick` 핸들러를 갖고 있습니다. 우리는 아직 `jumpTo()`메소드를 구현하지 않았습니다. 지금은, 게임에서 일어난 움직임들의 리스트를 봐야 합니다. 그리고 개발자 도구 콘솔이 말하는 경고를 봅시다.
+
+> **Warning: Each child in an array or iterator should have a unique "key" prop. Check the render method of "Game".**
+
+위의 경고의 의미에 대해서 한번 논의해봅시다.
+
+## 키 집기
