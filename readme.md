@@ -1037,4 +1037,114 @@ render() {
 
 리스트가 재렌더될 때, 리액트는 각 리스트 아이템의 키를 받습니다. 그리고 키를 매칭시키기 위해 이전 리스트의 아이템을 찾습니다. 만일 현재 리스트가 이전에 존재하지 않던 키를 갖고 있으면, 리액트는 컴포넌트를 생성합니다. 만일 현재 리스트가 이전에 갖고 있던 키를 잃어버린다면, 리액트는 이전 컴포넌트를 제거합니다. 만일 두 개의 키가 매치된다면, 일치하는 컴포넌트는 움직이게 됩니다. 키는 리액트에게 재 렌더링 사이에서 상태를 유지할 수 있게 하는 각 컴포넌트의 독립성에 대해 전달합니다. 만일 컴포넌트의 키가 바뀐다면, 컴포넌트는 파괴되고(destroyed) 새로운 상태로 재생성될 것입니다.
 
-리액트에서 `key`는 특별하고 예약(reserved)된 프로퍼티입니다. (더 고급기능인 `ref`와 마찬가지죠.)
+리액트에서 `key`는 특별하고 예약(reserved)된 프로퍼티입니다. (더 고급기능인 `ref`와 마찬가지죠.) 한 엘리먼트가 만들어졌을 때, 리액트는 `key` 프로퍼티를 추출합니다. 그리고 반환되는 엘리먼트에 `key`를 직접 저장합니다. `key`가 `props`처럼 보이겠지만, `key`는 `this.props.key`와 같은 방법으로 참조가 불가능합니다. 리액트는 자동적으로 `key`를 어떤 컴포넌트를 업데이트시킬지 결정하는 데에 이용하거든요. 컴포넌트는 자신의 `key`를 질의할 수 없습니다.
+
+**우리가 동적인 리스트를 만들 때, 키를 할당하는 것은 매우 권장됩니다.** 만일 적절한 키가 없다면, 적절한 키를 갖도록 다시 재구성하는 것을 고려하기 바랍니다.
+
+어떤 키도 명기되어있지 않다면, 리액트는 경고 메시지를 송출하고 배열의 인덱스 값을 기본 키 값으로 사용합니다. 리스트 아이템을 재정렬하거나 추가하거나 삭제하려고 할 때, 배열 인덱스를 키로 사용하는 것은 문제가 있을 수 있습니다. 명시적으로 `key={i}`라고 지정하는 것은 경고 메시지는 없앨 수 있지만 인덱스를 키로 이용할 때와 같은 문제를 지닙니다. 그래서 대부분의 경우에는 권장되지 않습니다.
+
+`key`는 전역적으로 유니크할 필요가 없습니다. 컴포넌트와 동등한 레벨의 리스트 사이에서만 유니크하면 됩니다.
+
+## 시간여행 구현하기
+
+틱택토 게임 히스토리에서, 각각의 이전 움직임들은 관련된 유니크한 ID를 갖습니다. 이것은 움직임의 연손적인 숫자입니다. 움직임들은 중간에 재정렬되거나 삭제되거나 추가되지 않습니다. 그래서 인덱스를 키로 사용해도 안전합니다.
+
+Game 컴포넌트의 `render` 메소드에서, 우리는 `<li key={move}>`와 같은 형태로 키를 추가할 것입니다. 이후 리액트에서 키에 대한 경고메시지는 사라질 것입니다.
+
+```js
+const moves = history.map((step, move) => {
+  const desc = move ?
+    'Go to move #' + move :
+    'Go to game start';
+  return (
+    <li key={move}>
+      <button onClick={() => this.jumpTo(move)}>
+        {desc}
+      </button>
+    </li>
+  );
+});
+```
+
+[여기까지의 코드 보기](https://codepen.io/gaearon/pen/PmmXRE?editors=0010)
+
+리스트의 아무 버튼만 눌러도 에러가 날 것입니다. 왜냐하면 `jumpTo` 메소드가 정의되지 않았기 때문입니다. `jumpTo` 메소드를 구현하기 전에 현재 몇번째 step을 보고있는지 나타내기 위해 `stepNumber`를 먼저 Game 컴포넌트의 상태에 추가할 것입니다.
+
+먼저, `stepNumber: 0`를 Game 컴포넌트의 `constructor`에 초기 상태로 추가하세요.
+
+```js
+class Game extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      history: [{
+        squares: Array(9).fill(null)  
+      }],
+      stepNumber: 0,
+      xIsNext: true,
+    };
+  };
+}
+```
+
+다음으로 `stepNumber`를 업데이트하기 위해 Game 컴포넌트에 `jumpTo` 메소드를 정의할 것입니다. 우리는 또 만일 우리가 변경하는 `stepNumber`가 짝수라면, `xIsNext`를 true로 설정할 것입니다.
+
+```js
+handleClick(i) {
+  // 이 메소드의 내용은 그대로 유지합니다.
+}
+
+jumpTo(step) {
+  this.setState({
+    stepNumber: step,
+    xIsNext: (step % 2) === 0,
+  });
+}
+
+render() {
+  // 이 메소드의 내용은 그대로 유지합니다.
+}
+```
+
+이제 Square를 클릭할 때 작동하는 Game 컴포넌트의 `handleClick` 메소드에 몇가지 변화를 줄 것입니다.
+
+우리가 추가한 `stepNumber` 상태는 이제 사용자에게 보여지는 움직임을 반영합니다. 우리가 움직인 후에, 우린 `this.state`의 인자의 일부로 `stepNumber: history.length`를 추가함으로써 `stepNumber`를 업데이트할 필요가 있습니다. 이것은 새로운 움직임이 있은 후에 같은 움직임에 머무르는 것을 보여주지 않음을 보증합니다.
+
+우리는 또 `this.state.history`를 읽는 대신에  `this.state.history.slice(0, this.state.stepNumber + 1)`를 읽을 것입니다. 이것은 우리가 "이전으로 돌아가기" 후에 돌아간 시점부터 새롭게 움직임을 만들 수 있도록 해줍니다. 더이상 올바르지 않은 미래의 히스토리들은 전부 날립니다.
+
+```js
+handleClick(i) {
+  const history = this.state.history.slice(0, this.state.stepNumber + 1);
+  const current = history[history.length - 1];
+  const squares = current.squares.slice();
+  if (calculateWinner(squares) || squares[i]) {
+    return;  
+  }
+  squares[i] = this.state.xIsNext ? 'X' : 'O';
+  this.setState({
+    history: history.concat([{
+      squares: squares
+    }]),
+    stepNumber: history.length,
+    xIsNext: !this.state.xIsNext,
+  });
+}
+```
+
+마지막으로, 우린 Game 컴포넌트의 `render` 메소드를 항상 마지막 움직임을 렌더링 하는 것에서 `stepNumber`에 따른 선택된 움직임을 렌더링 하도록 수정할 것입니다.
+
+```js
+render() {
+  const history = this.state.history;
+  const current = history[this.state.stepNumber];
+  const winner = calculateWinner(current.squares);
+  
+  // 나머지는 변경하지 않아도 됩니다.
+}
+```
+
+만일 우리가 game의 히스토리에서 아무 스탭이나 클릭했을 경우, 틱택토 게임 보드는 즉시 그 스탭이 일어났던 때를 보여주도록 업데이트 될 것입니다.
+
+[여기까지의 소스 보기](https://codepen.io/gaearon/pen/gWWZgR?editors=0010)
+
+## 요약하기
