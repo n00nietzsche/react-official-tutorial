@@ -911,3 +911,49 @@ render() {
   );
 }
 ```
+
+마지막으로, 우리는 Board 컴포넌트에서 Game 컴포넌트로 `handleClick` 메소드를 옮길 필요가 있습니다. 또 `handleClick` 메소드를 수정할 필요도 있습니다. 왜냐하면 Game 컴포넌트의 상태는 다르게 구조화되어 있으니까요. Game 컴포넌트의 `handleClick` 메소드 내부에서 우리는 `history`에 새로운 `history` 엔트리를 합칠(concatenate) 것입니다.
+
+```js
+handleClick(i) {
+  const history = this.state.history;
+  const current = history[history.length - 1];
+  const squares = current.squares.slice();
+  
+  if(calculateWinner(squares) || squares[i]) {
+    return;  
+  }
+  squares[i] = this.state.xIsNext ? 'X' : 'O';
+  this.setState({
+    history: history.concat([{
+      squares: squares,
+    }]),
+    xIsNext: !this.state.xIsNext,
+  });
+}
+```
+
+> **알아둬야 할 것**
+> 아마 우리에게 더욱 친숙한 배열의 `push()` 메소드와 다르게, `concat()` 메소드는 원본 배열을 변경하지 않습니다. 그래서 불변성을 지키기 위해 이걸 더 선호할 것입니다.
+
+이 지점에서, Board 컴포넌트는 `renderSquare`와 `render` 메소드가 필요합니다. 게임의 상태와 `handleClick` 메소드는 Game 컴포넌트 안에 있는 것이 좋습니다.
+
+[지금까지의 모든 코드 보기](https://codepen.io/gaearon/pen/EmmOqJ?editors=0010)
+
+## 이전 움직임들 보여주기
+
+우리가 틱택토 게임의 히스토리를 기록하고 있기 때문에, 이제 플레이어에게 지난 움직임의 기록을 보여주는 것도 가능합니다.
+
+우리는 리액트 컴포넌트가 자바스크립트 1급 객체라는 사실을 배웠습니다. 리액트 컴포넌트를 어플리케이션 내부에서 어디든 보낼 수 있습니다. 리액트에서 여러 개의 아이템들을 랜더하기 위해, 우리는 리액트 원소들의 배열을 사용할 수 있습니다. 
+
+자바스크립트에서, 배열은 데이터를 다른 데이터로 맵핑하는데 쓰이는 `map()` 메소드를 갖고 있습니다. 예를 들면,
+
+```js
+const numbers = [1, 2, 3];
+const doubled = numbers.map(x => x * 2); // [2, 4, 6]
+```
+
+`map` 메소드를 이용하여, 우리는 스크린에 버튼을 보여주면서 움직임의 히스토리를 리액트 원소로 맵핑할 수 있습니다. 그리고 이전 움직임으로 점프하기 위한 버튼들의 리스트를 보여줄 수 있습니다.
+
+그럼 Game의 `render`메소드에서 `history`를 `map` 해봅시다.
+
